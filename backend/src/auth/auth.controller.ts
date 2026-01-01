@@ -41,6 +41,16 @@ export class AuthController {
     if (!body?.email || !body?.password)
       throw new BadRequestException('Missing credentials');
     const user = await this.authService.validateUser(body.email, body.password);
-    return this.authService.login(user);
+    // Return token and a sanitized user object (exclude password)
+    const token = this.authService.login(user as any);
+    return {
+      access_token: token.access_token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        department: user.department,
+      },
+    };
   }
 }

@@ -22,4 +22,12 @@ export class UsersService {
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email } });
   }
+
+  async findAll() {
+    return this.prisma.user.findMany({ select: { id: true, email: true, role: true, department: true } });
+  }
+
+  async updateDepartment(id: number, department?: Department | null) {
+    return this.prisma.user.update({ where: { id }, data: { department } });
+  }
 }
