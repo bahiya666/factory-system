@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Dashboard from "./pages/dashboard";
@@ -6,6 +6,8 @@ import Admin from "./pages/admin";
 import RequireAuth from "./auth/requireAuth";
 import MainLayout from "./layouts/MainLayout";
 import DepartmentPage from "./pages/department";
+import Orders from "./pages/orders";
+import OrderDetails from "./pages/OrderDetails";
 
 export default function App() {
   return (
@@ -56,6 +58,28 @@ export default function App() {
           <RequireAuth>
             <MainLayout>
               <DepartmentPage />
+            </MainLayout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/orders"
+        element={
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <MainLayout>
+              <Orders />
+            </MainLayout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/orders/:id"
+        element={
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <MainLayout>
+              <OrderDetails />
             </MainLayout>
           </RequireAuth>
         }

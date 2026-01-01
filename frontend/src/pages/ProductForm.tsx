@@ -11,8 +11,28 @@ export default function ProductForm({
   onCancel?: () => void;
 }) {
   const [name, setName] = useState(product?.name || '');
-  const [sizesText, setSizesText] = useState((product?.sizes || []).join(', '));
-  const [fabricsText, setFabricsText] = useState(product ? JSON.stringify(product.fabrics, null, 2) : '{}');
+  const initialSizesText = () => {
+    const s = product?.sizes || [];
+    if (Array.isArray(s)) return s.map((x: any) => (x && typeof x === 'object' ? (x.name ?? '') : x)).filter(Boolean).join(', ');
+    return String(s || '');
+  };
+  const [sizesText, setSizesText] = useState(initialSizesText());
+  const computeInitialFabrics = () => {
+    if (!product) return {};
+    const f = (product as any).fabrics;
+    if (Array.isArray(f)) {
+      const map: Record<string, string[]> = {};
+      for (const pf of f) {
+        const fname = pf.fabric?.name ?? pf.name;
+        const colors = (pf.fabric?.colors ?? pf.colors ?? []).map((c: any) => c.name ?? c);
+        map[fname] = colors;
+      }
+      return map;
+    }
+    return f;
+  };
+
+  const [fabricsText, setFabricsText] = useState(product ? JSON.stringify(computeInitialFabrics(), null, 2) : '{}');
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (e?: any) => {

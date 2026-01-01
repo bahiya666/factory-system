@@ -31,8 +31,64 @@ enum Department {
 }
 
 model Product {
+  id      Int              @id @default(autoincrement())
+  name    String           @unique
+  sizes   Size[]
+  fabrics ProductFabric[]
+  orderItems OrderItem[]
+}
+
+model Size {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+  orderItems OrderItem[]
+}
+
+model Fabric {
+  id       Int              @id @default(autoincrement())
+  name     String           @unique
+  colors   Color[]
+  products ProductFabric[]
+  orderItems OrderItem[]
+}
+
+model Color {
   id       Int    @id @default(autoincrement())
-  name     String @unique
-  sizes    String[]
-  fabrics  Json
+  name     String
+  fabric   Fabric @relation(fields: [fabricId], references: [id])
+  fabricId Int
+  orderItems OrderItem[]
+}
+
+model ProductFabric {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  fabric    Fabric  @relation(fields: [fabricId], references: [id])
+  fabricId  Int
+
+  @@unique([productId, fabricId])
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  dueDate   DateTime
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  size      Size?   @relation(fields: [sizeId], references: [id])
+  sizeId    Int?
+  fabric    Fabric? @relation(fields: [fabricId], references: [id])
+  fabricId  Int?
+  color     Color?  @relation(fields: [colorId], references: [id])
+  colorId   Int?
+  quantity  Int
 }

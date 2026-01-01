@@ -16,7 +16,7 @@ export class ProductsController {
   }
 
   @Post()
-  create(@Body() body: { name: string; sizes: string[]; fabrics: any }) {
+  create(@Body() body: { name: string; sizes?: string[]; fabrics?: any }) {
     return this.productsService.create(body);
   }
 
