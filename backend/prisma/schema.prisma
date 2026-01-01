@@ -29,3 +29,10 @@ enum Department {
   DELIVERY
   INVENTORY
 }
+
+model Product {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  sizes    String[]
+  fabrics  Json
+}

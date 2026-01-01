@@ -4,6 +4,7 @@ import api from '../api/api';
 import type { User as AppUser } from '../auth/AuthContext';
 import Register from './register';
 import { ALL_DEPARTMENTS } from '../constants/departments';
+import ProductForm from './ProductForm';
 
 export default function Admin() {
   const { user, logout } = useAuth();
@@ -11,6 +12,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [products, setProducts] = useState<any[] | null>(null);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -26,8 +29,18 @@ export default function Admin() {
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const res = await api.get('/products');
+      setProducts(res.data ?? []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchProducts();
   }, []);
 
   const changeDepartment = async (userId: number, department: string | null) => {
@@ -37,6 +50,17 @@ export default function Admin() {
     } catch (err) {
       console.error(err);
       alert("Failed to update user");
+    }
+  };
+
+  const deleteProduct = async (id: number) => {
+    if (!confirm('Delete product?')) return;
+    try {
+      await api.delete(`/products/${id}`);
+      setProducts((p) => p?.filter((x) => x.id !== id) ?? null);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to delete');
     }
   };
 
@@ -96,21 +120,46 @@ export default function Admin() {
       </section>
 
       <section style={{ marginTop: 30 }}>
-        <h3>Create User</h3>
-        <div>
-          <button className="btn" onClick={() => setShowCreate(true)}>
-            Create User
+        <h3>Products</h3>
+        <div style={{ marginBottom: 12 }}>
+          <button className="btn" onClick={() => { setEditingProduct(null); setShowCreate(true); }}>
+            Create Product
           </button>
         </div>
+
+        {!products && <div>Loading...</div>}
+        {products && (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>Name</th>
+                <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>Sizes</th>
+                <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>Fabrics</th>
+                <th style={{ textAlign: 'left', padding: 8, borderBottom: '1px solid #ddd' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.id}>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f3f3' }}>{p.name}</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f3f3' }}>{(p.sizes || []).join(', ')}</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f3f3' }}>{Object.keys(p.fabrics || {}).join(', ')}</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f3f3' }}>
+                    <button className="btn small" onClick={() => { setEditingProduct(p); setShowCreate(true); }}>Edit</button>
+                    <button className="btn secondary small" onClick={() => deleteProduct(p.id)} style={{ marginLeft: 8 }}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
         {showCreate && (
           <div className="modal-backdrop" onClick={() => setShowCreate(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <Register
-                onCreated={() => {
-                  setShowCreate(false);
-                  fetchUsers();
-                }}
+              <ProductForm
+                product={editingProduct ?? undefined}
+                onCreated={() => { setShowCreate(false); fetchProducts(); }}
                 onCancel={() => setShowCreate(false)}
               />
             </div>
