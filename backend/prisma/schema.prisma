@@ -59,6 +59,7 @@ model Color {
   fabric   Fabric @relation(fields: [fabricId], references: [id])
   fabricId Int
   orderItems OrderItem[]
+  pieces   CuttingPiece[]
 }
 
 model ProductFabric {
@@ -72,23 +73,81 @@ model ProductFabric {
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
-  dueDate   DateTime
-  createdAt DateTime    @default(now())
-  items     OrderItem[]
+  id           Int           @id @default(autoincrement())
+  dueDate      DateTime
+  createdAt    DateTime      @default(now())
+  items        OrderItem[]
+  cuttingSlips CuttingSlip[]
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   Int
-  product   Product @relation(fields: [productId], references: [id])
-  productId Int
-  size      Size?   @relation(fields: [sizeId], references: [id])
-  sizeId    Int?
-  fabric    Fabric? @relation(fields: [fabricId], references: [id])
-  fabricId  Int?
-  color     Color?  @relation(fields: [colorId], references: [id])
-  colorId   Int?
+  id          Int          @id @default(autoincrement())
+  order       Order        @relation(fields: [orderId], references: [id])
+  orderId     Int
+  product     Product      @relation(fields: [productId], references: [id])
+  productId   Int
+  size        Size?        @relation(fields: [sizeId], references: [id])
+  sizeId      Int?
+  fabric      Fabric?      @relation(fields: [fabricId], references: [id])
+  fabricId    Int?
+  color       Color?       @relation(fields: [colorId], references: [id])
+  colorId     Int?
+  quantity    Int
+
+  // Canonical keys for cutting rule matching
+  productKind ProductKind
+  sizeKey     SizeKey
+}
+
+/// Catalog of cutting rules (BOM definitions) for all departments and products
+enum ProductKind {
+  BELLA
+  PANEL
+  WINGBACK
+}
+
+enum SizeKey {
+  SINGLE
+  THREE_QUARTER
+  DOUBLE
+  QUEEN
+  ANY
+}
+
+model CuttingRule {
+  id           Int         @id @default(autoincrement())
+  department   Department
+  productKind  ProductKind
+  sizeKey      SizeKey
+  material     String
+  width        Int
+  height       Int
+  quantityPer  Int
+  note         String?
+}
+
+/// Stored cutting slip per order and department
+model CuttingSlip {
+  id          Int           @id @default(autoincrement())
+  order       Order         @relation(fields: [orderId], references: [id])
+  orderId     Int
+  department  Department
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime?     @updatedAt
+  pieces      CuttingPiece[]
+
+  @@unique([orderId, department])
+}
+
+model CuttingPiece {
+  id        Int          @id @default(autoincrement())
+  slip      CuttingSlip  @relation(fields: [slipId], references: [id])
+  slipId    Int
+  material  String
+  width     Int
+  height    Int
   quantity  Int
+  note      String?
+  colorId   Int?
+  color     Color?       @relation(fields: [colorId], references: [id])
 }

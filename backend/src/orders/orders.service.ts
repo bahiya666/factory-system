@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
+import { ProductKind, SizeKey } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -24,7 +25,10 @@ export class OrdersService {
 
       let fabricId: number | undefined = undefined;
       if (it.fabricName) {
-        const f = await this.prisma.fabric.upsert({ where: { name: it.fabricName }, update: {}, create: { name: it.fabricName } });
+        const f = await this.prisma.fabric.findUnique({ where: { name: it.fabricName } });
+        if (!f) {
+          throw new Error(`Fabric '${it.fabricName}' is not allowed. Please select an existing fabric.`);
+        }
         fabricId = f.id;
       }
 
@@ -39,6 +43,26 @@ export class OrdersService {
         }
       }
 
+      // determine enums
+      let productKind: ProductKind = ProductKind.BELLA;
+      try {
+        const prod = await this.prisma.product.findUnique({ where: { id: it.productId } });
+        const pname = (prod?.name || '').toLowerCase();
+        if (pname.includes('panel')) productKind = ProductKind.PANEL;
+        else if (pname.includes('bella')) productKind = ProductKind.BELLA;
+        else if (pname.includes('wing')) productKind = ProductKind.WINGBACK; // fallback
+      } catch {}
+
+      const normSize = (name?: string | null): SizeKey => {
+        const v = (name || '').trim().toLowerCase();
+        if (v === 'single') return SizeKey.SINGLE;
+        if (v === 'double') return SizeKey.DOUBLE;
+        if (v === 'queen') return SizeKey.QUEEN;
+        if (v === '3/4' || v === 'three quarter' || v === 'three-quarter') return SizeKey.THREE_QUARTER;
+        return SizeKey.ANY;
+      };
+      const sizeKey = normSize(it.sizeName);
+
       await this.prisma.orderItem.create({
         data: {
           orderId: order.id,
@@ -47,9 +71,14 @@ export class OrdersService {
           fabricId,
           colorId,
           quantity: it.quantity,
+          productKind,
+          sizeKey,
         },
       });
     }
+
+    // Generate and persist Materials cutting slip for this order from catalog rules
+    await this.generateMaterialsSlip(order.id);
 
     return this.prisma.order.findUnique({ where: { id: order.id }, include: { items: true } });
   }
@@ -63,9 +92,83 @@ export class OrdersService {
   }
 
   async deleteOrder(id: number) {
-    // Delete child records first due to referential integrity
+    // Delete dependent cutting slip pieces and slips for this order
+    const slips = await this.prisma.cuttingSlip.findMany({ where: { orderId: id } });
+    const slipIds = slips.map((s) => s.id);
+    if (slipIds.length > 0) {
+      await this.prisma.cuttingPiece.deleteMany({ where: { slipId: { in: slipIds } } });
+      await this.prisma.cuttingSlip.deleteMany({ where: { id: { in: slipIds } } });
+    }
+    // Delete order items
     await this.prisma.orderItem.deleteMany({ where: { orderId: id } });
     // Then delete the order
     return this.prisma.order.delete({ where: { id } });
+  }
+
+  private inferKinds(productName: string, baseKind: ProductKind): ProductKind[] {
+    const kinds: ProductKind[] = [baseKind];
+    const p = productName.toLowerCase();
+    if (p.includes('wing')) kinds.push(ProductKind.WINGBACK);
+    return kinds;
+  }
+
+  private async generateMaterialsSlip(orderId: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { product: true, size: true, fabric: true, color: true } } },
+    });
+    if (!order) return;
+
+    // Remove existing slip if any (re-generate)
+    await this.prisma.cuttingSlip.deleteMany({ where: { orderId, department: 'MATERIALS' } });
+
+    type Accum = Map<string, { material: string; width: number; height: number; note?: string; quantity: number; colorId?: number | null }>;
+    const acc: Accum = new Map();
+
+    for (const item of order.items) {
+      if ((item.quantity ?? 0) <= 0) continue;
+      const kinds = this.inferKinds(item.product.name, item.productKind);
+      const sizeKeys: SizeKey[] = [item.sizeKey, SizeKey.ANY];
+
+      const rules = await this.prisma.cuttingRule.findMany({
+        where: {
+          department: 'MATERIALS',
+          productKind: { in: kinds },
+          sizeKey: { in: sizeKeys },
+        },
+      });
+
+      for (const r of rules) {
+        const isVelvetPlaceholder = r.material.toUpperCase() === 'VELVET';
+        const material = isVelvetPlaceholder ? (item.fabric?.name || 'VELVET') : r.material;
+        const colorId = material === 'SPUNBOND' ? null : item.colorId || null;
+        const k = `${material}|${r.width}|${r.height}|${r.note ?? ''}|${colorId ?? ''}`;
+        const existing = acc.get(k);
+        // For wingback headboards, rules are per-wing; each headboard has two wings
+        const wingFactor = (r.productKind === 'WINGBACK') ? 2 : 1;
+        const addQty = (r.quantityPer || 0) * wingFactor * (item.quantity || 0);
+        if (existing) existing.quantity += addQty;
+        else acc.set(k, { material, width: r.width, height: r.height, note: r.note || undefined, quantity: addQty, colorId });
+      }
+    }
+
+    const slip = await this.prisma.cuttingSlip.create({ data: { orderId, department: 'MATERIALS' } });
+    if (acc.size > 0) {
+      await this.prisma.$transaction(
+        Array.from(acc.values()).map((p) =>
+          this.prisma.cuttingPiece.create({
+            data: {
+              slipId: slip.id,
+              material: p.material,
+              width: p.width,
+              height: p.height,
+              quantity: p.quantity,
+              note: p.note,
+              colorId: p.colorId ?? null,
+            },
+          }),
+        ),
+      );
+    }
   }
 }

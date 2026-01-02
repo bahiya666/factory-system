@@ -6,6 +6,7 @@ import Admin from "./pages/admin";
 import RequireAuth from "./auth/requireAuth";
 import MainLayout from "./layouts/MainLayout";
 import DepartmentPage from "./pages/department";
+import MaterialOrderSlip from "./pages/MaterialOrderSlip";
 import Orders from "./pages/orders";
 import OrderDetails from "./pages/OrderDetails";
 
@@ -58,6 +59,17 @@ export default function App() {
           <RequireAuth>
             <MainLayout>
               <DepartmentPage />
+            </MainLayout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/department/:dept/orders/:id"
+        element={
+          <RequireAuth>
+            <MainLayout>
+              <MaterialOrderSlip />
             </MainLayout>
           </RequireAuth>
         }
