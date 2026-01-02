@@ -48,7 +48,22 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         </ul>
 
         {user?.role === 'ADMIN' && (
-          <div style={{ marginTop: 12 }}>{!collapsed ? <button className="btn" onClick={() => navigate('/admin')}>Admin</button> : <button className="btn small" onClick={() => navigate('/admin')}>A</button>}</div>
+          <>
+            <div style={{ marginTop: 12 }}>
+              {!collapsed ? (
+                <button className="btn" onClick={() => navigate('/admin')} style={{ width: '100%', marginBottom: 8 }}>Admin</button>
+              ) : (
+                <button className="btn small" onClick={() => navigate('/admin')} style={{ marginBottom: 8 }}>A</button>
+              )}
+            </div>
+            <div>
+              {!collapsed ? (
+                <button className="btn" onClick={() => navigate('/orders')} style={{ width: '100%' }}>Orders</button>
+              ) : (
+                <button className="btn small" onClick={() => navigate('/orders')}>O</button>
+              )}
+            </div>
+          </>
         )}
 
         <div style={{ position: 'absolute', bottom: 20, left: collapsed ? 8 : 20 }}>
