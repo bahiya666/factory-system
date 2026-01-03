@@ -14,9 +14,16 @@ export default function MaterialOrderSlip() {
 
   const slipEndpoint = useMemo(() => {
     if (!orderId) return '';
-    // Department MATERIALS maps to backend 'fabric' slips route previously implemented
+    const d = (dept || '').toLowerCase();
+    if (d === 'materials' || d === 'fabric') {
+      return `/departments/fabric/cutting-slips/${encodeURIComponent(orderId)}`;
+    }
+    if (d === 'wood') {
+      return `/departments/wood/cutting-slips/${encodeURIComponent(orderId)}`;
+    }
+    // default to materials
     return `/departments/fabric/cutting-slips/${encodeURIComponent(orderId)}`;
-  }, [orderId]);
+  }, [orderId, dept]);
 
   useEffect(() => {
     if (!orderId) return;
@@ -120,8 +127,12 @@ export default function MaterialOrderSlip() {
                 <div key={i} style={{ border: '1px solid #eee', padding: 12, borderRadius: 6 }}>
                   <div style={{ fontWeight: 600, marginBottom: 6 }}>{p.material}{p.note ? ` (${p.note})` : ''}</div>
                   <div style={{ fontSize: '0.9rem', color: '#444' }}>
-                    <div>Width: {mmToMeters(p.width)}</div>
-                    <div>Height: {mmToMeters(p.height)}</div>
+                    {(p.width > 0 && p.height > 0) ? (
+                      <>
+                        <div>Width: {mmToMeters(p.width)}</div>
+                        <div>Height: {mmToMeters(p.height)}</div>
+                      </>
+                    ) : null}
                     <div>Quantity: {p.quantity}</div>
                     {p.color ? <div>Color: {p.color}</div> : null}
                   </div>

@@ -30,6 +30,93 @@ export class PrismaService
           { department: 'MATERIALS', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'VELVET', width: 210, height: 80, quantityPer: 1, note: 'wing' },
         ]});
       }
+
+      // Ensure WOOD department rules exist even if MATERIALS were already seeded earlier
+      const woodCount = await this.cuttingRule.count({ where: { department: 'WOOD' } });
+      if (woodCount === 0) {
+        await this.cuttingRule.createMany({
+          data: [
+            // PANEL headboard – Queen
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1560, height: 33, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 855, height: 23, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1000, height: 10, quantityPer: 2, note: 'offcut' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'CHIPBOARD', width: 199, height: 900, quantityPer: 8, note: 'panel' },
+
+            // PANEL headboard – Double
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1410, height: 33, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 855, height: 23, quantityPer: 4, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1000, height: 10, quantityPer: 2, note: 'offcut' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'CHIPBOARD', width: 206, height: 900, quantityPer: 7, note: 'panel' },
+
+            // PANEL headboard – 3/4
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1060, height: 33, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 855, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 600, height: 10, quantityPer: 2, note: 'offcut' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'CHIPBOARD', width: 219, height: 900, quantityPer: 5, note: 'panel' },
+
+            // PANEL headboard – Single
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 960, height: 33, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 855, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 600, height: 10, quantityPer: 2, note: 'offcut' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'CHIPBOARD', width: 199, height: 900, quantityPer: 5, note: 'panel' },
+
+            // BELLA headboard – Queen
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1410, height: 33, quantityPer: 1, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1560, height: 33, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 790, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 750, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'MASONITE', width: 1600, height: 900, quantityPer: 1, note: 'back' },
+
+            // BELLA headboard – Double
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1410, height: 33, quantityPer: 4, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 730, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 660, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'MASONITE', width: 1450, height: 875, quantityPer: 1, note: 'back' },
+
+            // BELLA headboard – 3/4
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1410, height: 33, quantityPer: 1, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1160, height: 33, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 590, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 545, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'MASONITE', width: 1200, height: 875, quantityPer: 1, note: 'back' },
+
+            // BELLA headboard – Single
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 1410, height: 33, quantityPer: 1, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 960, height: 33, quantityPer: 3, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 490, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 445, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' },
+            { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'MASONITE', width: 1000, height: 875, quantityPer: 1, note: 'back' },
+          ]
+        });
+      }
       return;
     }
 
@@ -84,6 +171,87 @@ export class PrismaService
     rules.push({ department: 'MATERIALS', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'VELVET', width: 1520, height: 210, quantityPer: 2, note: 'wing' });
     rules.push({ department: 'MATERIALS', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'VELVET', width: 1520, height: 80, quantityPer: 1, note: 'wing' });
     rules.push({ department: 'MATERIALS', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'VELVET', width: 210, height: 80, quantityPer: 1, note: 'wing' });
+
+    // ---------------- WOOD Department (FRAME & PANELS)
+    // Default material is PINE unless specified as CHIPBOARD or MASONITE ----------------
+    // PANEL headboard – Queen
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1560, height: 33, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 855, height: 23, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1000, height: 10, quantityPer: 2, note: 'offcut' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: 'CHIPBOARD', width: 199, height: 900, quantityPer: 8, note: 'panel' });
+
+    // PANEL headboard – Double
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1410, height: 33, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 855, height: 23, quantityPer: 4, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1000, height: 10, quantityPer: 2, note: 'offcut' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: 'CHIPBOARD', width: 206, height: 900, quantityPer: 7, note: 'panel' });
+
+    // PANEL headboard – 3/4
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1060, height: 33, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 855, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 600, height: 10, quantityPer: 2, note: 'offcut' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: 'CHIPBOARD', width: 219, height: 900, quantityPer: 5, note: 'panel' });
+
+    // PANEL headboard – Single
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 960, height: 33, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 855, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 520, height: 23, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 600, height: 10, quantityPer: 2, note: 'offcut' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 6, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: 'CHIPBOARD', width: 199, height: 900, quantityPer: 5, note: 'panel' });
+
+    // BELLA headboard – Queen
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1410, height: 33, quantityPer: 1, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 1560, height: 33, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 790, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 750, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: 'MASONITE', width: 1600, height: 900, quantityPer: 1, note: 'back' });
+
+    // BELLA headboard – Double
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 1410, height: 33, quantityPer: 4, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 730, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 660, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: 'MASONITE', width: 1450, height: 875, quantityPer: 1, note: 'back' });
+
+    // BELLA headboard – 3/4
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1410, height: 33, quantityPer: 1, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 1160, height: 33, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 590, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 545, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: 'MASONITE', width: 1200, height: 875, quantityPer: 1, note: 'back' });
+
+    // BELLA headboard – Single
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 1450, height: 33, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 1410, height: 33, quantityPer: 1, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 960, height: 33, quantityPer: 3, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 490, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 445, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 530, height: 23, quantityPer: 2, note: 'frame' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'MASONITE', width: 1000, height: 875, quantityPer: 1, note: 'back' });
 
     await this.$transaction(rules.map((data) => this.cuttingRule.create({ data })));
   }

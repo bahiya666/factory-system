@@ -9,27 +9,48 @@ interface AuthUser {
   department?: Department | null;
 }
 
-@Controller('departments/fabric/cutting-slips')
+@Controller()
 @UseGuards(AuthGuard('jwt'))
 export class CuttingSlipsController {
   constructor(private readonly service: CuttingSlipsService) {}
 
-  private ensureAccess(user?: AuthUser) {
+  private ensureAccessFabric(user?: AuthUser) {
     if (!user) throw new ForbiddenException();
     if (user.role === 'ADMIN') return;
     if (user.role === 'DEPARTMENT' && user.department === 'MATERIALS') return;
     throw new ForbiddenException('Not allowed for this department');
   }
 
-  @Get()
-  async all(@Req() req: { user?: AuthUser }) {
-    this.ensureAccess(req.user);
-    return this.service.getFabricCuttingSlip({});
-    }
+  private ensureAccessWood(user?: AuthUser) {
+    if (!user) throw new ForbiddenException();
+    if (user.role === 'ADMIN') return;
+    if (user.role === 'DEPARTMENT' && user.department === 'WOOD') return;
+    throw new ForbiddenException('Not allowed for this department');
+  }
 
-  @Get(':orderId')
-  async byOrder(@Param('orderId', ParseIntPipe) orderId: number, @Req() req: { user?: AuthUser }) {
-    this.ensureAccess(req.user);
+  // Materials (fabric) endpoints
+  @Get('departments/fabric/cutting-slips')
+  async allFabric(@Req() req: { user?: AuthUser }) {
+    this.ensureAccessFabric(req.user);
+    return this.service.getFabricCuttingSlip({});
+  }
+
+  @Get('departments/fabric/cutting-slips/:orderId')
+  async byOrderFabric(@Param('orderId', ParseIntPipe) orderId: number, @Req() req: { user?: AuthUser }) {
+    this.ensureAccessFabric(req.user);
     return this.service.getFabricCuttingSlip({ orderId });
+  }
+
+  // Wood endpoints
+  @Get('departments/wood/cutting-slips')
+  async allWood(@Req() req: { user?: AuthUser }) {
+    this.ensureAccessWood(req.user);
+    return this.service.getWoodCuttingSlip({});
+  }
+
+  @Get('departments/wood/cutting-slips/:orderId')
+  async byOrderWood(@Param('orderId', ParseIntPipe) orderId: number, @Req() req: { user?: AuthUser }) {
+    this.ensureAccessWood(req.user);
+    return this.service.getWoodCuttingSlip({ orderId });
   }
 }

@@ -17,6 +17,113 @@ export class OrdersService {
         continue;
       }
 
+  private async generateWoodSlip(orderId: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { product: true, size: true } } },
+    });
+    if (!order) return;
+
+    await this.prisma.cuttingSlip.deleteMany({ where: { orderId, department: 'WOOD' } });
+
+    type Accum = Map<string, { material: string; width: number; height: number; note?: string; quantity: number }>;
+    const acc: Accum = new Map();
+
+    for (const item of order.items) {
+      if ((item.quantity ?? 0) <= 0) continue;
+      const kinds = this.inferKinds(item.product.name, item.productKind);
+      const sizeKeys: SizeKey[] = [item.sizeKey, SizeKey.ANY];
+
+      const rules = await this.prisma.cuttingRule.findMany({
+        where: {
+          department: 'WOOD',
+          productKind: { in: kinds },
+          sizeKey: { in: sizeKeys },
+        },
+      });
+
+      for (const r of rules) {
+        const material = r.material; // PINE/CHIPBOARD/MASONITE as seeded
+        const k = `${material}|${r.width}|${r.height}|${r.note ?? ''}`;
+        const existing = acc.get(k);
+        const addQty = (r.quantityPer || 0) * (item.quantity || 0);
+        if (existing) existing.quantity += addQty;
+        else acc.set(k, { material, width: r.width, height: r.height, note: r.note || undefined, quantity: addQty });
+      }
+    }
+
+    const slip = await this.prisma.cuttingSlip.create({ data: { orderId, department: 'WOOD' } });
+    if (acc.size > 0) {
+      await this.prisma.$transaction(
+        Array.from(acc.values()).map((p) =>
+          this.prisma.cuttingPiece.create({
+            data: {
+              slipId: slip.id,
+              material: p.material,
+              width: p.width,
+              height: p.height,
+              quantity: p.quantity,
+              note: p.note,
+            },
+          }),
+        ),
+      );
+    }
+  }
+
+  private async generateWoodSlip(orderId: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { product: true, size: true } } },
+    });
+    if (!order) return;
+
+    await this.prisma.cuttingSlip.deleteMany({ where: { orderId, department: 'WOOD' } });
+
+    type Accum = Map<string, { material: string; width: number; height: number; note?: string; quantity: number }>;
+    const acc: Accum = new Map();
+
+    for (const item of order.items) {
+      if ((item.quantity ?? 0) <= 0) continue;
+      const kinds = this.inferKinds(item.product.name, item.productKind);
+      const sizeKeys: SizeKey[] = [item.sizeKey, SizeKey.ANY];
+
+      const rules = await this.prisma.cuttingRule.findMany({
+        where: {
+          department: 'WOOD',
+          productKind: { in: kinds },
+          sizeKey: { in: sizeKeys },
+        },
+      });
+
+      for (const r of rules) {
+        const material = r.material; // PINE/CHIPBOARD/MASONITE as seeded
+        const k = `${material}|${r.width}|${r.height}|${r.note ?? ''}`;
+        const existing = acc.get(k);
+        const addQty = (r.quantityPer || 0) * (item.quantity || 0);
+        if (existing) existing.quantity += addQty;
+        else acc.set(k, { material, width: r.width, height: r.height, note: r.note || undefined, quantity: addQty });
+      }
+    }
+
+    const slip = await this.prisma.cuttingSlip.create({ data: { orderId, department: 'WOOD' } });
+    if (acc.size > 0) {
+      await this.prisma.$transaction(
+        Array.from(acc.values()).map((p) =>
+          this.prisma.cuttingPiece.create({
+            data: {
+              slipId: slip.id,
+              material: p.material,
+              width: p.width,
+              height: p.height,
+              quantity: p.quantity,
+              note: p.note,
+            },
+          }),
+        ),
+      );
+    }
+  }
       // ensure size/fabric/color exist if names provided
       let sizeId: number | undefined = undefined;
       if (it.sizeName) {
@@ -168,60 +275,6 @@ export class OrdersService {
               quantity: p.quantity,
               note: p.note,
               colorId: p.colorId ?? null,
-            },
-          }),
-        ),
-      );
-    }
-  }
-
-  private async generateWoodSlip(orderId: number) {
-    const order = await this.prisma.order.findUnique({
-      where: { id: orderId },
-      include: { items: { include: { product: true, size: true } } },
-    });
-    if (!order) return;
-
-    await this.prisma.cuttingSlip.deleteMany({ where: { orderId, department: 'WOOD' } });
-
-    type Accum = Map<string, { material: string; width: number; height: number; note?: string; quantity: number }>;
-    const acc: Accum = new Map();
-
-    for (const item of order.items) {
-      if ((item.quantity ?? 0) <= 0) continue;
-      const kinds = this.inferKinds(item.product.name, item.productKind);
-      const sizeKeys: SizeKey[] = [item.sizeKey, SizeKey.ANY];
-
-      const rules = await this.prisma.cuttingRule.findMany({
-        where: {
-          department: 'WOOD',
-          productKind: { in: kinds },
-          sizeKey: { in: sizeKeys },
-        },
-      });
-
-      for (const r of rules) {
-        const material = r.material; // PINE/CHIPBOARD/MASONITE as seeded
-        const k = `${material}|${r.width}|${r.height}|${r.note ?? ''}`;
-        const existing = acc.get(k);
-        const addQty = (r.quantityPer || 0) * (item.quantity || 0);
-        if (existing) existing.quantity += addQty;
-        else acc.set(k, { material, width: r.width, height: r.height, note: r.note || undefined, quantity: addQty });
-      }
-    }
-
-    const slip = await this.prisma.cuttingSlip.create({ data: { orderId, department: 'WOOD' } });
-    if (acc.size > 0) {
-      await this.prisma.$transaction(
-        Array.from(acc.values()).map((p) =>
-          this.prisma.cuttingPiece.create({
-            data: {
-              slipId: slip.id,
-              material: p.material,
-              width: p.width,
-              height: p.height,
-              quantity: p.quantity,
-              note: p.note,
             },
           }),
         ),

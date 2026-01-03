@@ -34,7 +34,7 @@ export default function Login() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn" type="submit">Login</button>
-          {/*<button className="btn secondary" type="button" onClick={() => navigate('/register')}>Register</button> */}
+          {/* <button className="btn secondary" type="button" onClick={() => navigate('/register')}>Register</button> */}
         </div>
       </form>
     </div>
