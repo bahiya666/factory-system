@@ -82,6 +82,8 @@ export class OrdersService {
     await this.generateMaterialsSlip(order.id);
     // Generate and persist WOOD cutting slip for this order from catalog rules
     await this.generateWoodSlip(order.id);
+    // Generate and persist FOAM cutting slip for this order from catalog rules
+    await this.generateFoamSlip(order.id);
 
     return this.prisma.order.findUnique({ where: { id: order.id }, include: { items: true } });
   }
@@ -92,6 +94,14 @@ export class OrdersService {
 
   findOne(id: number) {
     return this.prisma.order.findUnique({ where: { id }, include: { items: { where: { quantity: { gt: 0 } }, include: { product: true, size: true, fabric: { include: { colors: true } }, color: true } } } });
+  }
+
+  async regenerateSlips(orderId: number) {
+    // Regenerate both MATERIALS and WOOD slips for a specific order
+    await this.generateMaterialsSlip(orderId);
+    await this.generateWoodSlip(orderId);
+    await this.generateFoamSlip(orderId);
+    return { ok: true };
   }
 
   async deleteOrder(id: number) {
@@ -108,8 +118,9 @@ export class OrdersService {
     return this.prisma.order.delete({ where: { id } });
   }
 
-  private inferKinds(productName: string, baseKind: ProductKind): ProductKind[] {
+  private inferKinds(productName: string | undefined, baseKind: ProductKind): ProductKind[] {
     const kinds: ProductKind[] = [baseKind];
+    if (!productName) return kinds;
     const p = productName.toLowerCase();
     if (p.includes('wing')) kinds.push(ProductKind.WINGBACK);
     return kinds;
@@ -130,7 +141,7 @@ export class OrdersService {
 
     for (const item of order.items) {
       if ((item.quantity ?? 0) <= 0) continue;
-      const kinds = this.inferKinds(item.product.name, item.productKind);
+      const kinds = this.inferKinds(item.product?.name || '', item.productKind);
       const sizeKeys: SizeKey[] = [item.sizeKey, SizeKey.ANY];
 
       const rules = await this.prisma.cuttingRule.findMany({
@@ -189,7 +200,7 @@ export class OrdersService {
 
     for (const item of order.items) {
       if ((item.quantity ?? 0) <= 0) continue;
-      const kinds = this.inferKinds(item.product.name, item.productKind);
+      const kinds = this.inferKinds(item.product?.name || '', item.productKind);
       const sizeKeys: SizeKey[] = [item.sizeKey, SizeKey.ANY];
 
       const rules = await this.prisma.cuttingRule.findMany({
@@ -201,10 +212,12 @@ export class OrdersService {
       });
 
       for (const r of rules) {
-        const material = r.material; // PINE/CHIPBOARD/MASONITE as seeded
+        const material = r.material; // PINE/CHIPBOARD/MASONITE/POLYPROP as seeded
         const k = `${material}|${r.width}|${r.height}|${r.note ?? ''}`;
         const existing = acc.get(k);
-        const addQty = (r.quantityPer || 0) * (item.quantity || 0);
+        // For wingback headboards, rules are per-wing; each headboard has two wings
+        const wingFactor = (r.productKind === 'WINGBACK') ? 2 : 1;
+        const addQty = (r.quantityPer || 0) * wingFactor * (item.quantity || 0);
         if (existing) existing.quantity += addQty;
         else acc.set(k, { material, width: r.width, height: r.height, note: r.note || undefined, quantity: addQty });
       }
@@ -222,6 +235,63 @@ export class OrdersService {
               height: p.height,
               quantity: p.quantity,
               note: p.note,
+              orderItemId: undefined,
+            },
+          }),
+        ),
+      );
+    }
+  }
+
+  private async generateFoamSlip(orderId: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { product: true, size: true } } },
+    });
+    if (!order) return;
+
+    await this.prisma.cuttingSlip.deleteMany({ where: { orderId, department: 'FOAM' } });
+
+    type Accum = Map<string, { material: string; width: number; height: number; note?: string; quantity: number }>;
+    const acc: Accum = new Map();
+
+    for (const item of order.items) {
+      if ((item.quantity ?? 0) <= 0) continue;
+      const kinds = this.inferKinds(item.product?.name || '', item.productKind);
+      const sizeKeys: SizeKey[] = [item.sizeKey, SizeKey.ANY];
+
+      const rules = await this.prisma.cuttingRule.findMany({
+        where: {
+          department: 'FOAM',
+          productKind: { in: kinds },
+          sizeKey: { in: sizeKeys },
+        },
+      });
+
+      for (const r of rules) {
+        const material = r.material; // 40mm White / 20mm White / 10mm White
+        const k = `${material}|${r.width}|${r.height}|${r.note ?? ''}`;
+        const existing = acc.get(k);
+        const wingFactor = (r.productKind === 'WINGBACK') ? 2 : 1;
+        const addQty = (r.quantityPer || 0) * wingFactor * (item.quantity || 0);
+        if (existing) existing.quantity += addQty;
+        else acc.set(k, { material, width: r.width, height: r.height, note: r.note || undefined, quantity: addQty });
+      }
+    }
+
+    const slip = await this.prisma.cuttingSlip.create({ data: { orderId, department: 'FOAM' } });
+    if (acc.size > 0) {
+      await this.prisma.$transaction(
+        Array.from(acc.values()).map((p) =>
+          this.prisma.cuttingPiece.create({
+            data: {
+              slipId: slip.id,
+              material: p.material,
+              width: p.width,
+              height: p.height,
+              quantity: p.quantity,
+              note: p.note,
+              orderItemId: undefined,
             },
           }),
         ),

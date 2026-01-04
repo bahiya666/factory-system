@@ -9,6 +9,7 @@ import DepartmentPage from "./pages/department";
 import MaterialOrderSlip from "./pages/MaterialOrderSlip";
 import Orders from "./pages/orders";
 import OrderDetails from "./pages/OrderDetails";
+import DeliveryDepartment from "./pages/DeliveryDepartment";
 
 export default function App() {
   return (
@@ -59,6 +60,17 @@ export default function App() {
           <RequireAuth>
             <MainLayout>
               <DepartmentPage />
+            </MainLayout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/department/DELIVERY"
+        element={
+          <RequireAuth>
+            <MainLayout>
+              <DeliveryDepartment />
             </MainLayout>
           </RequireAuth>
         }

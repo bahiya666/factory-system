@@ -156,7 +156,6 @@ export default function Admin() {
           <button className="btn" onClick={() => { setEditingProduct(null); setShowCreate(true); }}>
             Create Product
           </button>
-          <button className="btn" onClick={() => setShowOrderCreate(true)} style={{ marginLeft: 8 }}>Create Order</button>
         </div>
 
         {!products && <div>Loading...</div>}
@@ -211,7 +210,7 @@ export default function Admin() {
 
       <section style={{ marginTop: 30 }}>
         <h3>Orders</h3>
-
+        <button className="btn" onClick={() => setShowOrderCreate(true)} style={{ marginLeft: 8 }}>Create Order</button>
         {!orders && <div>Loading...</div>}
         {orders && (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>

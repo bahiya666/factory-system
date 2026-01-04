@@ -114,8 +114,52 @@ export class PrismaService
             { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' },
             { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' },
             { department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'MASONITE', width: 1000, height: 875, quantityPer: 1, note: 'back' },
+
+            // WINGBACK add-on (wood) per-wing counts; each headboard has two wings
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'CHIPBOARD', width: 1450, height: 50, quantityPer: 2, note: 'wing (12mm)' },
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'PINE', width: 110, height: 110, quantityPer: 4, note: 'wing' },
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'PINE', width: 105, height: 50, quantityPer: 5, note: 'wing' },
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'POLYPROP', width: 1690, height: 40, quantityPer: 1, note: 'wing' },
           ]
         });
+      }
+
+      // Ensure WOOD wingback rules exist even if other WOOD rules were already present
+      const woodWingCount = await this.cuttingRule.count({ where: { department: 'WOOD', productKind: ProductKind.WINGBACK } });
+      if (woodWingCount === 0) {
+        await this.cuttingRule.createMany({
+          data: [
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'CHIPBOARD', width: 1450, height: 50, quantityPer: 2, note: 'wing (12mm)' },
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'PINE', width: 110, height: 110, quantityPer: 4, note: 'wing' },
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'PINE', width: 105, height: 50, quantityPer: 5, note: 'wing' },
+            { department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'POLYPROP', width: 1690, height: 40, quantityPer: 1, note: 'wing' },
+          ]
+        });
+      }
+
+      // Ensure FOAM department rules exist
+      const foamCount = await this.cuttingRule.count({ where: { department: 'FOAM' } });
+      if (foamCount === 0) {
+        await this.cuttingRule.createMany({ data: [
+          // BELLA foam per size
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: '40mm White', width: 1590, height: 875, quantityPer: 1, note: 'sponge' },
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: '20mm White', width: 1640, height: 910, quantityPer: 1, note: 'sponge' },
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: '40mm White', width: 1440, height: 875, quantityPer: 1, note: 'sponge' },
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: '20mm White', width: 1470, height: 910, quantityPer: 1, note: 'sponge' },
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: '40mm White', width: 1190, height: 875, quantityPer: 1, note: 'sponge' },
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: '20mm White', width: 1220, height: 910, quantityPer: 1, note: 'sponge' },
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: '40mm White', width: 990, height: 875, quantityPer: 1, note: 'sponge' },
+          { department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: '20mm White', width: 1020, height: 910, quantityPer: 1, note: 'sponge' },
+
+          // PANEL foam segments per size
+          { department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: '40mm White', width: 215, height: 920, quantityPer: 8, note: 'sponge panel' },
+          { department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: '40mm White', width: 222, height: 920, quantityPer: 7, note: 'sponge panel' },
+          { department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: '40mm White', width: 255, height: 920, quantityPer: 5, note: 'sponge panel' },
+          { department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: '40mm White', width: 215, height: 920, quantityPer: 5, note: 'sponge panel' },
+
+          // WINGBACK (per-wing) foam
+          { department: 'FOAM', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: '10mm White', width: 1515, height: 280, quantityPer: 1, note: 'wing' },
+        ]});
       }
       return;
     }
@@ -252,6 +296,32 @@ export class PrismaService
     rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'triangle' });
     rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'PINE', width: 0, height: 0, quantityPer: 4, note: 'square' });
     rules.push({ department: 'WOOD', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: 'MASONITE', width: 1000, height: 875, quantityPer: 1, note: 'back' });
+
+    // WINGBACK add-on (wood) per-wing counts; each headboard has two wings
+    rules.push({ department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'CHIPBOARD', width: 1450, height: 50, quantityPer: 2, note: 'wing (12mm)' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'PINE', width: 110, height: 110, quantityPer: 4, note: 'wing' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'PINE', width: 105, height: 50, quantityPer: 5, note: 'wing' });
+    rules.push({ department: 'WOOD', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: 'POLYPROP', width: 1690, height: 40, quantityPer: 1, note: 'wing' });
+
+    // ---------------- FOAM Department (SPONGE)
+    // BELLA foam per size
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: '40mm White', width: 1590, height: 875, quantityPer: 1, note: 'sponge' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.QUEEN, material: '20mm White', width: 1640, height: 910, quantityPer: 1, note: 'sponge' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: '40mm White', width: 1440, height: 875, quantityPer: 1, note: 'sponge' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.DOUBLE, material: '20mm White', width: 1470, height: 910, quantityPer: 1, note: 'sponge' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: '40mm White', width: 1190, height: 875, quantityPer: 1, note: 'sponge' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.THREE_QUARTER, material: '20mm White', width: 1220, height: 910, quantityPer: 1, note: 'sponge' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: '40mm White', width: 990, height: 875, quantityPer: 1, note: 'sponge' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.BELLA, sizeKey: SizeKey.SINGLE, material: '20mm White', width: 1020, height: 910, quantityPer: 1, note: 'sponge' });
+
+    // PANEL foam per size
+    rules.push({ department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.QUEEN, material: '40mm White', width: 215, height: 920, quantityPer: 8, note: 'sponge panel' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.DOUBLE, material: '40mm White', width: 222, height: 920, quantityPer: 7, note: 'sponge panel' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.THREE_QUARTER, material: '40mm White', width: 255, height: 920, quantityPer: 5, note: 'sponge panel' });
+    rules.push({ department: 'FOAM', productKind: ProductKind.PANEL, sizeKey: SizeKey.SINGLE, material: '40mm White', width: 215, height: 920, quantityPer: 5, note: 'sponge panel' });
+
+    // WINGBACK foam (per wing)
+    rules.push({ department: 'FOAM', productKind: ProductKind.WINGBACK, sizeKey: SizeKey.ANY, material: '10mm White', width: 1515, height: 280, quantityPer: 1, note: 'wing' });
 
     await this.$transaction(rules.map((data) => this.cuttingRule.create({ data })));
   }

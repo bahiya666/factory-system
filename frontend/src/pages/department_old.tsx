@@ -8,27 +8,10 @@ export default function DepartmentPage() {
   const { user } = useAuth();
 
   if (!dept) return <div>Invalid department</div>;
+
   if (user?.role === 'DEPARTMENT' && user.department && user.department !== dept) {
     return <Navigate to={`/department/${user.department}`} replace />;
   }
-
-  return (
-    <div style={{ padding: 20, fontFamily: 'Inter, system-ui, Arial', maxWidth: 1200, margin: '0 auto' }}>
-      <h2 style={{ marginTop: 0 }}>{dept} Department</h2>
-      <p style={{ color: '#666' }}>Signed in as: {user?.email}</p>
-
-      {dept === 'MATERIALS' ? (
-        <FabricCuttingSlip />
-      ) : dept === 'WOOD' ? (
-        <WoodCuttingSlip />
-      ) : dept === 'FOAM' ? (
-        <FoamCuttingSlip />
-      ) : (
-        <div style={{ marginTop: 12 }}>No department-specific view yet.</div>
-      )}
-    </div>
-  );
-}
 
 function FoamCuttingSlip() {
   const { dept } = useParams<{ dept: string }>();
@@ -257,6 +240,7 @@ function WoodCuttingSlip() {
   };
 
   useEffect(() => {
+    // Load all orders list for Wood page
     const loadOrders = async () => {
       setLoadingOrders(true);
       try {
@@ -272,6 +256,7 @@ function WoodCuttingSlip() {
   }, []);
 
   useEffect(() => {
+    // If filtering by order, fetch full order first and wait for user to request slip
     const id = orderIdFilter.trim();
     setData(null);
     if (id) {
@@ -431,6 +416,17 @@ function WoodCuttingSlip() {
             ))}
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+      ) : dept === 'WOOD' ? (
+        <WoodCuttingSlip />
+      ) : dept === 'FOAM' ? (
+        <FoamCuttingSlip />
+      ) : (
+        <div style={{ marginTop: 12 }}>No department-specific view yet.</div>
       )}
     </div>
   );
@@ -615,67 +611,74 @@ function FabricCuttingSlip() {
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
       {data && showSlip && (
         <div>
           <div style={{ fontSize: '0.95rem', color: '#666', marginBottom: 8 }}>
-            Read-only. Department: {data.department} | Type: {data.type}
-            {data.scope?.orderId ? (
-              <>
-                {' '}| Order #: {data.scope.orderId}
-                {data.scope?.dueDate ? (
-                  <> | Due: {new Date(data.scope.dueDate).toLocaleString()}</>
-                ) : null}
-              </>
-            ) : null}
+            Department: {data.department} | Order #{orderDetails.id}
           </div>
-          {orderDetails && (
-            <div style={{ marginBottom: 16 }}>
-              {orderDetails.items.map((item: any) => {
-                const productName = item.product?.name || 'Unknown';
-                const sizeName = item.size?.name;
-                const fabricName = item.fabric?.name;
-                const colorName = item.color?.name;
-                // Filter pieces that belong to this order item by matching fabric and color
-                const itemPieces = data.pieces.filter((p: any) => {
-                  // For MATERIALS department, match by fabric and color
-                  if (data.department === 'MATERIALS') {
-                    return p.material === fabricName && p.color === colorName;
-                  }
-                  // For other departments, fall back to simple grouping by product name
-                  return true;
-                });
-                return (
-                  <div key={`${productName}-${sizeName}-${fabricName}-${colorName}`} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                    <h4 style={{ marginTop: 0, marginBottom: 12 }}>
-                      {productName} ({sizeName}) – {fabricName} ({colorName}) – Qty: {item.quantity}
-                    </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
-                      {itemPieces.map((p: any, idx: number) => (
-                        <div key={idx} style={{ border: '1px solid #eee', padding: 12, borderRadius: 6 }}>
-                          <div style={{ fontWeight: 600, marginBottom: 6 }}>{p.material}{p.note ? ` (${p.note})` : ''}</div>
-                          <div style={{ fontSize: '0.9rem', color: '#444' }}>
-                            {(p.width > 0 && p.height > 0) ? (
-                              <>
-                                <div>Width: {mmToMeters(p.width)}</div>
-                                <div>Height: {mmToMeters(p.height)}</div>
-                              </>
-                            ) : null}
-                            <div>Quantity: {p.quantity}</div>
-                            {p.color ? <div>Color: {p.color}</div> : null}
-                          </div>
+
+          {(() => {
+            const piecesByItem = data.pieces.reduce((acc: Record<string, any[]>, p) => {
+              const key = p.orderItemId;
+              if (!acc[key]) acc[key] = [];
+              acc[key].push(p);
+              return acc;
+            }, {});
+
+            return orderDetails.items.map((item: any) => {
+              const itemPieces = piecesByItem[item.id] || [];
+
+              if (itemPieces.length === 0) return null;
+
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    border: '1px solid #ddd',
+                    borderRadius: 8,
+                    padding: 12,
+                    marginBottom: 16,
+                  }}
+                >
+                  {/* Product header */}
+                  <h4 style={{ marginTop: 0, marginBottom: 12 }}>
+                    {item.product?.name} – {item.size?.name} – Qty: {item.quantity}
+                  </h4>
+
+                  {/* Pieces grid */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                      gap: 10,
+                    }}
+                  >
+                    {itemPieces.map((p: any, idx: number) => (
+                      <div
+                        key={idx}
+                        style={{
+                          border: '1px solid #eee',
+                          padding: 12,
+                          borderRadius: 6,
+                        }}
+                      >
+                        <div style={{ fontWeight: 600, marginBottom: 6 }}>
+                          {p.material}
+                          {p.note ? ` (${p.note})` : ''}
                         </div>
-                      ))}
-                    </div>
+
+                        <div style={{ fontSize: '0.9rem', color: '#444' }}>
+                          {p.width && <div>Width: {mmToMeters(p.width)}</div>}
+                          {p.height && <div>Height: {mmToMeters(p.height)}</div>}
+                          <div>Quantity: {p.quantity}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                </div>
+              );
+            });
+          })()}
         </div>
       )}
 

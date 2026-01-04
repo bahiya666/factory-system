@@ -97,7 +97,7 @@ export default function OrderForm({ onCreated, onCancel }: { onCreated?: () => v
 
                 <div style={{ marginBottom: 8 }}>
                   <label style={{ display: 'block', marginBottom: 6 }}>Quantity</label>
-                  <input className="form-input" type="number" min={0} value={it.quantity} onChange={(e)=>updateItem(p.id, idx, { quantity: Number(e.target.value) })} />
+                  <input className="form-input" type="text" inputMode="numeric" pattern="[0-9]*" value={it.quantity || ''} onChange={(e)=>updateItem(p.id, idx, { quantity: e.target.value })} />
                 </div>
 
               </div>

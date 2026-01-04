@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import api from '../api/api';
+import OrderForm from './OrderForm';
 
 export default function Orders() {
   const [orders, setOrders] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [showOrderCreate, setShowOrderCreate] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -42,7 +44,10 @@ export default function Orders() {
 
   return (
     <div style={{ padding: 20, fontFamily: 'Inter, system-ui, Arial', maxWidth: 1200, margin: '0 auto' }}>
-      <h1 style={{ marginTop: 0, marginBottom: 6 }}>Orders</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h1 style={{ marginTop: 0, marginBottom: 0 }}>Orders</h1>
+        <button className="btn" onClick={() => setShowOrderCreate(true)}>Create Order</button>
+      </div>
 
       {loading && <div>Loading...</div>}
       {error && (
@@ -89,6 +94,20 @@ export default function Orders() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showOrderCreate && (
+        <div className="modal-backdrop" onClick={() => setShowOrderCreate(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <OrderForm
+              onCreated={() => {
+                setShowOrderCreate(false);
+                fetchOrders();
+              }}
+              onCancel={() => setShowOrderCreate(false)}
+            />
+          </div>
         </div>
       )}
     </div>

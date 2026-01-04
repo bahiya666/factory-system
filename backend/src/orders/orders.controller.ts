@@ -24,4 +24,9 @@ export class OrdersController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.ordersService.deleteOrder(id);
   }
+
+  @Post(':id/regenerate-slips')
+  regenerate(@Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.regenerateSlips(id);
+  }
 }
