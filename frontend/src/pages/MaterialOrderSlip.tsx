@@ -49,43 +49,27 @@ export default function MaterialOrderSlip() {
         Due: {new Date(order.dueDate).toLocaleString()} | Created: {new Date(order.createdAt).toLocaleString()}
       </div>
 
-      {order.items.map((item: any) => {
-        const productName = item.product?.name || 'Unknown';
-        const sizeName = item.size?.name;
-        const fabricName = item.fabric?.name;
-        const colorName = item.color?.name;
-        const itemPieces = slip.pieces.filter((p: any) => {
-          if (dept === 'MATERIALS') {
-            return p.material === fabricName && p.color === colorName;
-          }
-          return true;
-        });
-
-        return (
-          <div key={`${productName}-${sizeName}-${fabricName}-${colorName}`} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-            <h3 style={{ marginTop: 0, marginBottom: 12 }}>
-              {productName} ({sizeName}) – {fabricName} ({colorName}) – Qty: {item.quantity}
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
-              {itemPieces.map((p: any, idx: number) => (
-                <div key={idx} style={{ border: '1px solid #eee', padding: 12, borderRadius: 6 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{p.material}{p.note ? ` (${p.note})` : ''}</div>
-                  <div style={{ fontSize: '0.9rem', color: '#444' }}>
-                    {(p.width > 0 && p.height > 0) ? (
-                      <>
-                        <div>Width: {mmToMeters(p.width)}</div>
-                        <div>Height: {mmToMeters(p.height)}</div>
-                      </>
-                    ) : null}
-                    <div>Quantity: {p.quantity}</div>
-                    {p.color ? <div>Color: {p.color}</div> : null}
-                  </div>
-                </div>
-              ))}
+      {/* Full cutting slip - all products together */}
+      <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16 }}>
+        <h3 style={{ marginTop: 0, marginBottom: 12 }}>Full Cutting Slip</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
+          {slip.pieces.map((p: any, idx: number) => (
+            <div key={idx} style={{ border: '1px solid #eee', padding: 12, borderRadius: 6 }}>
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>{p.material}{p.note ? ` (${p.note})` : ''}</div>
+              <div style={{ fontSize: '0.9rem', color: '#444' }}>
+                {(p.width > 0 && p.height > 0) ? (
+                  <>
+                    <div>Width: {mmToMeters(p.width)}</div>
+                    <div>Height: {mmToMeters(p.height)}</div>
+                  </>
+                ) : null}
+                <div>Quantity: {p.quantity}</div>
+                {p.color ? <div>Color: {p.color}</div> : null}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
