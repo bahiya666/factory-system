@@ -58,9 +58,37 @@ export default function MainLayout({ children }: { children: ReactNode }) {
             </div>
             <div>
               {!collapsed ? (
-                <button className="btn" onClick={() => navigate('/orders')} style={{ width: '100%' }}>Orders</button>
+                <button className="btn" onClick={() => navigate('/orders')} style={{ width: '100%', marginBottom: 8 }}>Orders</button>
               ) : (
-                <button className="btn small" onClick={() => navigate('/orders')}>O</button>
+                <button className="btn small" onClick={() => navigate('/orders')} style={{ marginBottom: 8 }}>O</button>
+              )}
+            </div>
+            <div>
+              {!collapsed ? (
+                <button className="btn" onClick={() => navigate('/suppliers')} style={{ width: '100%', marginBottom: 8 }}>Suppliers</button>
+              ) : (
+                <button className="btn small" onClick={() => navigate('/suppliers')} style={{ marginBottom: 8 }}>S</button>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Inventory and Invoice Scanning for both Admin and Department users */}
+        {(user?.role === 'ADMIN' || user?.role === 'DEPARTMENT') && (
+          <>
+            <h4 style={{ margin: collapsed ? '8px 0' : '12px 0', marginTop: '16px' }}>{!collapsed && 'Management'}</h4>
+            <div>
+              {!collapsed ? (
+                <button className="btn" onClick={() => navigate('/inventory')} style={{ width: '100%', marginBottom: 8 }}>Inventory</button>
+              ) : (
+                <button className="btn small" onClick={() => navigate('/inventory')} style={{ marginBottom: 8 }}>📦</button>
+              )}
+            </div>
+            <div>
+              {!collapsed ? (
+                <button className="btn" onClick={() => navigate('/invoice-scanning')} style={{ width: '100%', marginBottom: 8 }}>Scan Invoice</button>
+              ) : (
+                <button className="btn small" onClick={() => navigate('/invoice-scanning')} style={{ marginBottom: 8 }}>📸</button>
               )}
             </div>
           </>

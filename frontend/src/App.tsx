@@ -10,6 +10,9 @@ import MaterialOrderSlip from "./pages/MaterialOrderSlip";
 import Orders from "./pages/orders";
 import OrderDetails from "./pages/OrderDetails";
 import DeliveryDepartment from "./pages/DeliveryDepartment";
+import Suppliers from "./pages/suppliers";
+import Inventory from "./pages/inventory";
+import InvoiceScanning from "./pages/invoice-scanning";
 
 export default function App() {
   return (
@@ -104,6 +107,42 @@ export default function App() {
           <RequireAuth allowedRoles={["ADMIN"]}>
             <MainLayout>
               <OrderDetails />
+            </MainLayout>
+          </RequireAuth>
+        }
+      />
+
+      {/* Supplier Management - Admin only */}
+      <Route
+        path="/suppliers"
+        element={
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <MainLayout>
+              <Suppliers />
+            </MainLayout>
+          </RequireAuth>
+        }
+      />
+
+      {/* Inventory Dashboard - Admin and Department */}
+      <Route
+        path="/inventory"
+        element={
+          <RequireAuth allowedRoles={["ADMIN", "DEPARTMENT"]}>
+            <MainLayout>
+              <Inventory />
+            </MainLayout>
+          </RequireAuth>
+        }
+      />
+
+      {/* Invoice Scanning - Admin and Department */}
+      <Route
+        path="/invoice-scanning"
+        element={
+          <RequireAuth allowedRoles={["ADMIN", "DEPARTMENT"]}>
+            <MainLayout>
+              <InvoiceScanning />
             </MainLayout>
           </RequireAuth>
         }

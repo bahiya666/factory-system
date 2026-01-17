@@ -13,6 +13,10 @@ import { OrdersService } from './orders/orders.service';
 import { OrdersController } from './orders/orders.controller';
 import { CuttingSlipsService } from './departments/cutting-slips.service';
 import { CuttingSlipsController } from './departments/cutting-slips.controller';
+import { SuppliersModule } from './suppliers/suppliers.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { InvoiceScanningModule } from './invoice-scanning/invoice-scanning.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -20,6 +24,12 @@ import { CuttingSlipsController } from './departments/cutting-slips.controller';
     JwtModule.register({
       secret: 'SECRET_KEY',
       signOptions: { expiresIn: '8h' },
+    }),
+    SuppliersModule,
+    InventoryModule,
+    InvoiceScanningModule,
+    MulterModule.register({
+      dest: './uploads',
     }),
   ],
   controllers: [AuthController, UsersController, ProductsController, OrdersController, CuttingSlipsController],
